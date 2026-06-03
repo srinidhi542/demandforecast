@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory Control - Admin Panel</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="admin-body">
+
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="sidebar-logo">📊 Admin Panel</a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <span class="icon-dashboard"></span> Dashboard
+            </a>
+            <a href="users.html" class="nav-item">
+                <span class="icon-users"></span> User Management
+            </a>
+            <a href="products.html" class="nav-item">
+                <span class="icon-products"></span> Product Management
+            </a>
+            <a href="inventory.html" class="nav-item active">
+                <span class="icon-inventory"></span> Inventory Control
+            </a>
+            <a href="sales.html" class="nav-item">
+                <span class="icon-sales"></span> Sales History
+            </a>
+            <a href="forecasting.html" class="nav-item">
+                <span class="icon-forecast"></span> Forecast Tools
+            </a>
+            <a href="alerts.html" class="nav-item">
+                <span class="icon-alerts"></span> Alert Center
+            </a>
+            <a href="reports.html" class="nav-item">
+                <span class="icon-reports"></span> System Reports
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="icon-settings"></span> System Settings
+            </a>
+        </nav>
+    </aside>
+
+    <main class="admin-main">
+        <header class="admin-navbar">
+            <h2>Inventory Control</h2>
+            <div id="admin-name" style="font-weight: 600;">Admin User</div>
+        </header>
+
+        <div class="admin-content">
+            <div class="grid grid-2 mb-4">
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">Bulk Inventory Update</h3>
+                    </div>
+                    <div class="admin-content">
+                        <p class="mb-4" style="font-size: 0.875rem; color: var(--text-secondary);">Upload a CSV file to
+                            update stock levels for all products in the system.</p>
+                        <div class="file-upload" id="adminDropZone">
+                            <span style="font-size: 2rem;">📤</span>
+                            <p>Drag and drop CSV here<br>or <span style="color: var(--primary-color);">browse
+                                    files</span></p>
+                            <input type="file" id="adminCsvFile" accept=".csv" style="display: none;">
+                        </div>
+                        <div id="uploadStatus" style="margin-top: 1rem;"></div>
+                    </div>
+                </div>
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">Stock Level Distribution</h3>
+                    </div>
+                    <div class="admin-content">
+                        <div class="chart-container" style="height: 200px;">
+                            <canvas id="stockDistChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h3 class="admin-card-title">Live Inventory Status</h3>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Location</th>
+                                <th>Current Stock</th>
+                                <th>Reorder Level</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="inventoryTableBody">
+                            <!-- Loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/utils.js"></script>
+    <script src="../js/admin.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadAdminInventory();
+            initCharts();
+        });
+
+        async function loadAdminInventory() {
+            try {
+                const products = await apiRequest('/admin/products');
+                const tbody = document.getElementById('inventoryTableBody');
+
+                tbody.innerHTML = products.map(p => {
+                    const status = getStockStatus(p.currentStock, p.reorderLevel);
+                    return `
+                        <tr>
+                            <td>
+                                <strong>${p.name}</strong><br>
+                                <span style="font-size: 0.75rem; color: var(--text-secondary);">${p.productId} | Owned by: ${p.userId?.username}</span>
+                            </td>
+                            <td>${p.stockLocation || 'N/A'}</td>
+                            <td>${p.currentStock} ${p.unit}</td>
+                            <td>${p.reorderLevel} ${p.unit}</td>
+                            <td><span class="badge ${status.class}">${status.label}</span></td>
+                            <td><button class="btn btn-secondary btn-sm">Update Stock</button></td>
+                        </tr>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('Failed to load inventory:', err);
+            }
+        }
+
+        function getStockStatus(current, reorder) {
+            if (current <= 0) return { label: 'Out of Stock', class: 'badge-danger' };
+            if (current <= reorder) return { label: 'Low Stock', class: 'badge-warning' };
+            if (current > 1000) return { label: 'Overstock', class: 'badge-info' };
+            return { label: 'Normal', class: 'badge-success' };
+        }
+
+        function initCharts() {
+            const ctx = document.getElementById('stockDistChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Normal', 'Low Stock', 'Overstock'],
+                    datasets: [{
+                        data: [70, 20, 10],
+                        backgroundColor: ['#10b981', '#f59e0b', '#3b82f6']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+
+        const dropZone = document.getElementById('adminDropZone');
+        const fileInput = document.getElementById('adminCsvFile');
+
+        dropZone.onclick = () => fileInput.click();
+        fileInput.onchange = async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                document.getElementById('uploadStatus').innerHTML = '<div class="alert alert-info">Bulk processing feature coming soon...</div>';
+            }
+        };
+    </script>
+</body>
+
+</html>

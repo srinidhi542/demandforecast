@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alert Center - Admin Panel</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="admin-body">
+
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="sidebar-logo">📊 Admin Panel</a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <span class="icon-dashboard"></span> Dashboard
+            </a>
+            <a href="users.html" class="nav-item">
+                <span class="icon-users"></span> User Management
+            </a>
+            <a href="products.html" class="nav-item">
+                <span class="icon-products"></span> Product Management
+            </a>
+            <a href="inventory.html" class="nav-item">
+                <span class="icon-inventory"></span> Inventory Control
+            </a>
+            <a href="sales.html" class="nav-item">
+                <span class="icon-sales"></span> Sales History
+            </a>
+            <a href="forecasting.html" class="nav-item">
+                <span class="icon-forecast"></span> Forecast Tools
+            </a>
+            <a href="alerts.html" class="nav-item active">
+                <span class="icon-alerts"></span> Alert Center
+            </a>
+            <a href="reports.html" class="nav-item">
+                <span class="icon-reports"></span> System Reports
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="icon-settings"></span> System Settings
+            </a>
+        </nav>
+    </aside>
+
+    <main class="admin-main">
+        <header class="admin-navbar">
+            <h2>Alert Management</h2>
+            <div id="admin-name" style="font-weight: 600;">Admin User</div>
+        </header>
+
+        <div class="admin-content">
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h3 class="admin-card-title">System-Wide Alerts</h3>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-secondary btn-sm" onclick="markAllAsRead()">Mark All Resolved</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Severity</th>
+                                <th>Type</th>
+                                <th>Product / User</th>
+                                <th>Message</th>
+                                <th>Recommended Action</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="alertsFullTable">
+                            <!-- Loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/utils.js"></script>
+    <script src="../js/admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', loadAdminAlerts);
+
+        async function loadAdminAlerts() {
+            try {
+                const tbody = document.getElementById('alertsFullTable');
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem;">Loading system alerts...</td></tr>';
+
+                // Fetch from admin endpoint
+                const alerts = await apiRequest('/admin/alerts');
+
+                if (!alerts || alerts.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--text-secondary);">No active system-wide alerts</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = alerts.map(alert => `
+                    <tr>
+                        <td><span class="badge badge-${getSeverityClass(alert.severity || 'low')}">${(alert.severity || 'low').toUpperCase()}</span></td>
+                        <td><strong>${(alert.alertType || 'unknown').replace('_', ' ').toUpperCase()}</strong></td>
+                        <td>
+                            ${alert.productId}<br>
+                            <span style="font-size: 0.75rem; color: var(--text-secondary);">Owner: ${alert.userId?.username || 'System User'}</span>
+                        </td>
+                        <td>${alert.message || 'No message'}</td>
+                        <td style="font-size: 0.875rem; color: var(--primary-color); font-weight: 500;">
+                            ${getRecommendation(alert.alertType)}
+                        </td>
+                        <td><span class="badge ${alert.isRead ? 'badge-success' : 'badge-warning'}">${alert.isRead ? 'RESOLVED' : 'OPEN'}</span></td>
+                        <td>
+                            <button class="btn btn-secondary btn-sm" onclick="resolveAlert('${alert._id}', ${alert.isRead})">${alert.isRead ? 'Re-open' : 'Resolve'}</button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Failed to load alerts:', err);
+                document.getElementById('alertsFullTable').innerHTML = `<tr><td colspan="7" style="text-align: center; padding: 2rem; color: var(--danger-color);">Error: ${err.message}</td></tr>`;
+            }
+        }
+
+        function getRecommendation(type) {
+            switch (type) {
+                case 'low_stock': return 'Initiate reorder from vendor immediately.';
+                case 'overstock': return 'Consider promotional discount to clear inventory.';
+                case 'anomaly': return 'verify sales data for recording errors.';
+                case 'offer_recommendation': return '🏷️ Apply discount or bundle promotion.';
+                default: return 'No specific action required.';
+            }
+        }
+
+        async function resolveAlert(id, currentStatus) {
+            try {
+                // Use admin resolve endpoint
+                await apiRequest(`/admin/alerts/${id}/resolve`, {
+                    method: 'PUT',
+                    body: JSON.stringify({ isRead: !currentStatus })
+                });
+                loadAdminAlerts();
+            } catch (err) {
+                console.error('Failed to resolve alert:', err);
+                alert('Error: ' + err.message);
+            }
+        }
+
+        async function markAllAsRead() {
+            if (!confirm('Are you sure you want to mark all system alerts as resolved?')) return;
+            try {
+                await apiRequest('/admin/alerts/resolve-all', { method: 'PUT' });
+                loadAdminAlerts();
+            } catch (err) {
+                alert('Error: ' + err.message);
+            }
+        }
+    </script>
+</body>
+
+</html>

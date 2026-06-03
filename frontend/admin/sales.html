@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Management - Admin Panel</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="admin-body">
+
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="sidebar-logo">📊 Admin Panel</a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <span class="icon-dashboard"></span> Dashboard
+            </a>
+            <a href="users.html" class="nav-item">
+                <span class="icon-users"></span> User Management
+            </a>
+            <a href="products.html" class="nav-item">
+                <span class="icon-products"></span> Product Management
+            </a>
+            <a href="inventory.html" class="nav-item">
+                <span class="icon-inventory"></span> Inventory Control
+            </a>
+            <a href="sales.html" class="nav-item active">
+                <span class="icon-sales"></span> Sales History
+            </a>
+            <a href="forecasting.html" class="nav-item">
+                <span class="icon-forecast"></span> Forecast Tools
+            </a>
+            <a href="alerts.html" class="nav-item">
+                <span class="icon-alerts"></span> Alert Center
+            </a>
+            <a href="reports.html" class="nav-item">
+                <span class="icon-reports"></span> System Reports
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="icon-settings"></span> System Settings
+            </a>
+        </nav>
+    </aside>
+
+    <main class="admin-main">
+        <header class="admin-navbar">
+            <h2>Sales Records</h2>
+            <div id="admin-name" style="font-weight: 600;">Admin User</div>
+        </header>
+
+        <div class="admin-content">
+            <div class="admin-card mb-4">
+                <div class="admin-card-header">
+                    <h3 class="admin-card-title">Filter Global Sales</h3>
+                    <div class="d-flex gap-2">
+                        <select id="userFilter" class="form-select" style="width: 180px;" onchange="loadAdminSales()">
+                            <option value="all">All Owners</option>
+                        </select>
+                        <input type="date" id="start" class="form-input">
+                        <input type="date" id="end" class="form-input">
+                        <button class="btn btn-primary" onclick="loadAdminSales()">Apply Filters</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Product ID</th>
+                                <th>Store / Channel</th>
+                                <th>Quantity</th>
+                                <th>Revenue</th>
+                                <th>Account</th>
+                            </tr>
+                        </thead>
+                        <tbody id="salesTableBody">
+                            <!-- Loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/utils.js"></script>
+    <script src="../js/admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadUserFilter();
+            await loadAdminSales();
+        });
+
+        async function loadUserFilter() {
+            try {
+                const users = await apiRequest('/admin/users');
+                const select = document.getElementById('userFilter');
+                users.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u._id;
+                    opt.textContent = u.username;
+                    select.appendChild(opt);
+                });
+            } catch (err) {
+                console.error('Failed to load user filter:', err);
+            }
+        }
+
+        async function loadAdminSales() {
+            try {
+                const tbody = document.getElementById('salesTableBody');
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">Loading sales history...</td></tr>';
+
+                // Get filters
+                const userId = document.getElementById('userFilter').value;
+                const startDate = document.getElementById('start').value;
+                const endDate = document.getElementById('end').value;
+
+                let url = `/admin/sales?limit=2000`;
+                if (userId && userId !== 'all') url += `&userId=${userId}`;
+                if (startDate) url += `&startDate=${startDate}`;
+                if (endDate) url += `&endDate=${endDate}`;
+
+                // Fetch sales from admin endpoint for system-wide view
+                const sales = await apiRequest(url);
+
+                if (!sales || sales.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-secondary);">No sales records found for the selected criteria</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = sales.map(s => `
+                    <tr>
+                        <td>${formatDate(s.date)}</td>
+                        <td><code>${s.productId}</code></td>
+                        <td>${s.storeId || s.storeName || 'Online'}</td>
+                        <td><strong>${s.quantity}</strong></td>
+                        <td>$${(s.revenue || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+                        <td><span class="badge badge-info">${s.userId?.username || 'Unknown'}</span></td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Failed to load sales history:', err);
+                document.getElementById('salesTableBody').innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--danger-color);">Error: ${err.message}</td></tr>`;
+            }
+        }
+    </script>
+</body>
+
+</html>

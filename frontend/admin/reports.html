@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Reports - Admin Panel</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="admin-body">
+
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="sidebar-logo">📊 Admin Panel</a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <span class="icon-dashboard"></span> Dashboard
+            </a>
+            <a href="users.html" class="nav-item">
+                <span class="icon-users"></span> User Management
+            </a>
+            <a href="products.html" class="nav-item">
+                <span class="icon-products"></span> Product Management
+            </a>
+            <a href="inventory.html" class="nav-item">
+                <span class="icon-inventory"></span> Inventory Control
+            </a>
+            <a href="sales.html" class="nav-item">
+                <span class="icon-sales"></span> Sales History
+            </a>
+            <a href="forecasting.html" class="nav-item">
+                <span class="icon-forecast"></span> Forecast Tools
+            </a>
+            <a href="alerts.html" class="nav-item">
+                <span class="icon-alerts"></span> Alert Center
+            </a>
+            <a href="reports.html" class="nav-item active">
+                <span class="icon-reports"></span> System Reports
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="icon-settings"></span> System Settings
+            </a>
+        </nav>
+    </aside>
+
+    <main class="admin-main">
+        <header class="admin-navbar">
+            <h2>Reporting Engine</h2>
+            <div id="admin-name" style="font-weight: 600;">Admin User</div>
+        </header>
+
+        <div class="admin-content">
+            <div class="grid grid-3 mb-4">
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">Inventory Summary</h3>
+                    </div>
+                    <div class="admin-content">
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Generate a
+                            comprehensive list of current stock levels across all locations and owners.</p>
+                        <button class="btn btn-primary" style="width: 100%;"
+                            onclick="exportReport('inventory')">Download CSV Report</button>
+                    </div>
+                </div>
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">Sales Performance</h3>
+                    </div>
+                    <div class="admin-content">
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Detailed
+                            sales breakdown including revenue totals and top-performing products.</p>
+                        <button class="btn btn-primary" style="width: 100%;" onclick="exportReport('sales')">Download
+                            CSV Report</button>
+                    </div>
+                </div>
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">Forecast Audit</h3>
+                    </div>
+                    <div class="admin-content">
+                        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Audit log
+                            of generated forecasts vs actual sales for accuracy performance review.</p>
+                        <button class="btn btn-primary" style="width: 100%;" onclick="exportReport('forecast')">Download
+                            CSV Report</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h3 class="admin-card-title">Custom Report Builder</h3>
+                </div>
+                <div class="admin-content">
+                    <div class="grid grid-3">
+                        <div class="form-group">
+                            <label class="form-label">Data Source</label>
+                            <select class="form-select">
+                                <option>Total Aggregate System Data</option>
+                                <option>Per-User Breakdown</option>
+                                <option>Category Performance</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Timeframe</label>
+                            <select class="form-select">
+                                <option>Last 30 Days</option>
+                                <option>Last Quarter</option>
+                                <option>Year to Date</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Format</label>
+                            <select class="form-select">
+                                <option>Standard CSV</option>
+                                <option>Portable PDF</option>
+                                <option>Excel (.xlsx)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" style="width: 200px; margin-top: 1rem;">Generate Custom
+                        Report</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/utils.js"></script>
+    <script src="../js/admin.js"></script>
+    <script>
+        function exportReport(type) {
+            alert(`Generating ${type} report... The CSV will begin downloading shortly.`);
+            // Real implementation would call window.location.href = `/api/reports/${type}/export?token=${getToken()}`;
+        }
+    </script>
+</body>
+
+</html>

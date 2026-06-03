@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Forecasting - Demand Forecast System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container navbar-content">
+            <a href="dashboard.html" class="logo">📊 Demand Forecast</a>
+            <ul class="nav-links">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="data-upload.html">Data</a></li>
+                <li><a href="forecasting.html" class="active">Forecasting</a></li>
+                <li><a href="seasonal.html">Seasonality</a></li>
+                <li><a href="instock.html">Stock</a></li>
+                <li><a href="optimization.html">Optimization</a></li>
+                <li><a href="inventory.html">Alerts</a></li>
+                <li><a href="reports.html">Reports</a></li>
+                <li><a href="settings.html">Settings</a></li>
+            </ul>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <button class="theme-toggle" onclick="toggleDarkMode()">🌓</button>
+                <span id="username" style="color: var(--text-secondary);"></span>
+                <button class="btn btn-secondary" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 2rem;">
+        <h1 style="margin-bottom: 2rem;">Demand Forecasting</h1>
+
+        <div id="alert-container"></div>
+
+        <!-- Forecast Configuration -->
+        <div class="card" style="margin-bottom: 2rem;">
+            <div class="card-header">Generate Forecast</div>
+            <form id="forecastForm" class="grid grid-3">
+                <div class="form-group">
+                    <label class="form-label">Product ID</label>
+                    <input type="text" id="productId" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Store ID</label>
+                    <input type="text" id="storeId" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Forecast Days</label>
+                    <input type="number" id="forecastDays" class="form-input" value="30" min="7" max="90">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Model</label>
+                    <select id="model" class="form-select">
+                        <option value="auto">Auto (Best Model)</option>
+                        <option value="linear_regression">Linear Regression</option>
+                        <option value="random_forest">Random Forest</option>
+                        <option value="arima">ARIMA</option>
+                    </select>
+                </div>
+                <div class="form-group" style="display: flex; align-items: flex-end;">
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Generate Forecast</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Model Comparison -->
+        <div class="card" style="margin-bottom: 2rem;" id="modelComparison" style="display: none;">
+            <div class="card-header">Model Performance</div>
+            <div class="grid grid-4" id="modelMetrics"></div>
+        </div>
+
+        <!-- 🔍 Demand Explainability Panel -->
+        <div id="explainabilityPanel" class="card explainability-panel" style="display: none; margin-bottom: 2rem;">
+            <div class="card-header" style="display:flex; align-items:center; gap:0.75rem;">
+                <span style="font-size:1.4rem;">🔍</span>
+                <span>Demand Explainability</span>
+                <span id="explainDirectionBadge" class="badge" style="margin-left:auto;"></span>
+            </div>
+            <div style="padding: 0.5rem 0 1rem 0;">
+                <div id="explainText" class="explain-text"></div>
+                <div id="explainFactors" class="explain-factors"></div>
+            </div>
+        </div>
+
+        <!-- Forecast Chart -->
+        <div class="card" style="margin-bottom: 2rem;">
+            <div class="card-header">Forecast Visualization</div>
+            <div class="chart-container">
+                <canvas id="forecastChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Forecast Table -->
+        <div class="card">
+            <div class="card-header">Forecast Results</div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Base Forecast</th>
+                            <th>Season</th>
+                            <th>Multiplier</th>
+                            <th>Adjusted Forecast</th>
+                            <th>Confidence Min</th>
+                            <th>Confidence Max</th>
+                            <th>Model</th>
+                            <th>Explanation</th>
+                        </tr>
+                    </thead>
+                    <tbody id="forecastTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/forecasting.js"></script>
+</body>
+
+</html>

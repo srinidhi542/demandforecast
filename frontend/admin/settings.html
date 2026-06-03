@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Settings - Admin Panel</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="admin-body">
+
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="sidebar-logo">📊 Admin Panel</a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <span class="icon-dashboard"></span> Dashboard
+            </a>
+            <a href="users.html" class="nav-item">
+                <span class="icon-users"></span> User Management
+            </a>
+            <a href="products.html" class="nav-item">
+                <span class="icon-products"></span> Product Management
+            </a>
+            <a href="inventory.html" class="nav-item">
+                <span class="icon-inventory"></span> Inventory Control
+            </a>
+            <a href="sales.html" class="nav-item">
+                <span class="icon-sales"></span> Sales History
+            </a>
+            <a href="forecasting.html" class="nav-item">
+                <span class="icon-forecast"></span> Forecast Tools
+            </a>
+            <a href="alerts.html" class="nav-item">
+                <span class="icon-alerts"></span> Alert Center
+            </a>
+            <a href="reports.html" class="nav-item">
+                <span class="icon-reports"></span> System Reports
+            </a>
+            <a href="settings.html" class="nav-item active">
+                <span class="icon-settings"></span> System Settings
+            </a>
+        </nav>
+    </aside>
+
+    <main class="admin-main">
+        <header class="admin-navbar">
+            <h2>System Preferences</h2>
+            <div id="admin-name" style="font-weight: 600;">Admin User</div>
+        </header>
+
+        <div class="admin-content">
+            <div class="grid grid-2">
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">Alert Thresholds</h3>
+                    </div>
+                    <div class="admin-content">
+                        <div id="alert-container"></div>
+                        <div class="form-group">
+                            <label class="form-label">Global Low Stock (%)</label>
+                            <input type="number" id="lowStockThreshold" class="form-input" value="15">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Global Overstock (%)</label>
+                            <input type="number" id="overstockThreshold" class="form-input" value="150">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Global Reorder Threshold (Quantity)</label>
+                            <input type="number" id="reorderQuantityThreshold" class="form-input" value="50">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Forecast Anomaly Trigger (Standard Deviations)</label>
+                            <input type="number" id="anomalyThreshold" class="form-input" value="3">
+                        </div>
+                        <div class="form-group"
+                            style="border-top: 2px solid #f59e0b; padding-top: 1rem; margin-top: 0.5rem;">
+                            <label class="form-label" style="display:flex; align-items:center; gap:0.4rem;">
+                                <span
+                                    style="background:#f59e0b; color:#fff; font-size:0.7rem; padding:0.1rem 0.5rem; border-radius:999px; font-weight:700;">NEW</span>
+                                🏷️ Offer Recommendation Threshold (Units)
+                            </label>
+                            <input type="number" id="offerThreshold" class="form-input" value="200"
+                                style="border-color: #f59e0b;">
+                            <small style="color: var(--text-secondary); display:block; margin-top:0.35rem;">
+                                Products with stock at or above this quantity will trigger an offer recommendation
+                                alert.
+                            </small>
+                        </div>
+                        <button id="saveThresholds" class="btn btn-primary">Save Thresholds</button>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">ML Service Configuration</h3>
+                    </div>
+                    <div class="admin-content">
+                        <div class="form-group">
+                            <label class="form-label">Service Endpoint</label>
+                            <input type="text" class="form-input" value="http://localhost:5001" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Default Model</label>
+                            <select class="form-select">
+                                <option>Random Forest Ensemble</option>
+                                <option>Moving Average (Naive)</option>
+                                <option>Polynomial Regression</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Auto-Trigger Frequency</label>
+                            <select class="form-select">
+                                <option>Every 24 Hours</option>
+                                <option>On Data Import</option>
+                                <option>Manual Only</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-secondary">Test Connection</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="admin-card mt-4" style="margin-top: 2rem; border-color: var(--danger-color);">
+                <div class="admin-card-header" style="background: rgba(239, 68, 68, 0.1);">
+                    <h3 class="admin-card-title" style="color: var(--danger-color);">Advanced System Operations</h3>
+                </div>
+                <div class="admin-content">
+                    <p class="mb-4">These actions are destructive and should only be performed during system
+                        maintenance.</p>
+                    <div class="d-flex gap-2">
+                        <button class="btn btn-danger">Purge Forecast Logs</button>
+                        <button class="btn btn-danger">Recalculate All Metrics</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/utils.js"></script>
+    <script src="../js/admin.js"></script>
+</body>
+
+</html>

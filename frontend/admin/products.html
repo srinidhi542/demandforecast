@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Product Management - Admin Panel</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body class="admin-body">
+
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="sidebar-logo">📊 Admin Panel</a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <span class="icon-dashboard"></span> Dashboard
+            </a>
+            <a href="users.html" class="nav-item">
+                <span class="icon-users"></span> User Management
+            </a>
+            <a href="products.html" class="nav-item active">
+                <span class="icon-products"></span> Product Management
+            </a>
+            <a href="inventory.html" class="nav-item">
+                <span class="icon-inventory"></span> Inventory Control
+            </a>
+            <a href="sales.html" class="nav-item">
+                <span class="icon-sales"></span> Sales History
+            </a>
+            <a href="forecasting.html" class="nav-item">
+                <span class="icon-forecast"></span> Forecast Tools
+            </a>
+            <a href="alerts.html" class="nav-item">
+                <span class="icon-alerts"></span> Alert Center
+            </a>
+            <a href="reports.html" class="nav-item">
+                <span class="icon-reports"></span> System Reports
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="icon-settings"></span> System Settings
+            </a>
+        </nav>
+    </aside>
+
+    <main class="admin-main">
+        <header class="admin-navbar">
+            <h2>Product Management</h2>
+            <div class="align-center d-flex gap-2">
+                <button class="theme-toggle" onclick="toggleDarkMode()">🌓</button>
+                <div id="admin-name" style="font-weight: 600;">Admin User</div>
+            </div>
+        </header>
+
+        <div class="admin-content">
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <h3 class="admin-card-title">All System Products</h3>
+                    <div class="d-flex gap-2">
+                        <select id="userFilter" class="form-select" style="width: 200px;"
+                            onchange="loadAdminProducts()">
+                            <option value="all">All Owners</option>
+                        </select>
+                        <button class="btn btn-primary">+ New Product</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Product ID</th>
+                                <th>Name</th>
+                                <th>Category</th>
+                                <th>Owner (User)</th>
+                                <th>Stock</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableBody">
+                            <!-- Loaded via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/utils.js"></script>
+    <script src="../js/admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadUserOptions();
+            await loadAdminProducts();
+        });
+
+        async function loadUserOptions() {
+            try {
+                const users = await apiRequest('/admin/users');
+                const select = document.getElementById('userFilter');
+                users.forEach(u => {
+                    const opt = document.createElement('option');
+                    opt.value = u._id;
+                    opt.textContent = u.username;
+                    select.appendChild(opt);
+                });
+            } catch (err) { }
+        }
+
+        async function loadAdminProducts() {
+            try {
+                const products = await apiRequest('/admin/products');
+                const filter = document.getElementById('userFilter').value;
+                const tbody = document.getElementById('productsTableBody');
+
+                const filtered = filter === 'all' ? products : products.filter(p => p.userId._id === filter);
+
+                tbody.innerHTML = filtered.map(p => `
+                    <tr>
+                        <td><code>${p.productId}</code></td>
+                        <td><strong>${p.name}</strong></td>
+                        <td><span class="badge badge-info">${p.category}</span></td>
+                        <td>${p.userId?.username || 'System'}</td>
+                        <td>${p.currentStock} ${p.unit}</td>
+                        <td>$${p.price.toFixed(2)}</td>
+                        <td><span class="badge badge-success">Active</span></td>
+                        <td>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-secondary btn-sm">Edit</button>
+                                <button class="btn btn-danger btn-sm">Delete</button>
+                            </div>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch (err) {
+                console.error('Failed to load products:', err);
+            }
+        }
+    </script>
+</body>
+
+</html>

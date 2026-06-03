@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Demand Forecast System</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body class="admin-body">
+
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+        <div class="sidebar-header">
+            <a href="dashboard.html" class="sidebar-logo">📊 Admin Panel</a>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="dashboard.html" class="nav-item">
+                <span class="icon-dashboard"></span> Dashboard
+            </a>
+            <a href="users.html" class="nav-item">
+                <span class="icon-users"></span> User Management
+            </a>
+            <a href="products.html" class="nav-item">
+                <span class="icon-products"></span> Product Management
+            </a>
+            <a href="inventory.html" class="nav-item">
+                <span class="icon-inventory"></span> Inventory Control
+            </a>
+            <a href="sales.html" class="nav-item">
+                <span class="icon-sales"></span> Sales History
+            </a>
+            <a href="forecasting.html" class="nav-item">
+                <span class="icon-forecast"></span> Forecast Tools
+            </a>
+            <a href="alerts.html" class="nav-item">
+                <span class="icon-alerts"></span> Alert Center
+            </a>
+            <a href="reports.html" class="nav-item">
+                <span class="icon-reports"></span> System Reports
+            </a>
+            <a href="settings.html" class="nav-item">
+                <span class="icon-settings"></span> System Settings
+            </a>
+        </nav>
+        <div class="sidebar-footer">
+            <a href="#" onclick="logout()" class="nav-item" style="color: #f87171;">
+                <span>🚪</span> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+        <header class="admin-navbar">
+            <h2 id="page-title">System Overview</h2>
+            <div class="align-center d-flex gap-2">
+                <button class="theme-toggle" onclick="toggleDarkMode()">🌓</button>
+                <div class="d-flex align-center gap-2">
+                    <div style="text-align: right;">
+                        <div id="admin-name" style="font-weight: 600;">Admin User</div>
+                        <div style="font-size: 0.75rem; color: var(--text-secondary);">System Administrator</div>
+                    </div>
+                    <div
+                        style="width: 40px; height: 40px; background: var(--primary-color); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
+                        A</div>
+                </div>
+            </div>
+        </header>
+
+        <div class="admin-content fade-in">
+            <!-- KPI Grid -->
+            <div class="grid grid-4 mb-4">
+                <div class="admin-stats-card">
+                    <div class="stats-icon" style="background: rgba(37, 99, 235, 0.1); color: var(--primary-color);">📦
+                    </div>
+                    <div class="stats-info">
+                        <div class="stats-label">Total Products</div>
+                        <div class="stats-value" id="totalProducts">0</div>
+                    </div>
+                </div>
+                <div class="admin-stats-card">
+                    <div class="stats-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--secondary-color);">
+                        💰</div>
+                    <div class="stats-info">
+                        <div class="stats-label">Total Sales</div>
+                        <div class="stats-value" id="totalSales">0</div>
+                    </div>
+                </div>
+                <div class="admin-stats-card">
+                    <div class="stats-icon" style="background: rgba(139, 92, 246, 0.1); color: var(--accent-color);">👥
+                    </div>
+                    <div class="stats-info">
+                        <div class="stats-label">Online Users</div>
+                        <div class="stats-value" id="onlineUsers">0</div>
+                    </div>
+                </div>
+                <div class="admin-stats-card">
+                    <div class="stats-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--warning-color);">🔔
+                    </div>
+                    <div class="stats-info">
+                        <div class="stats-label">Active Alerts</div>
+                        <div class="stats-value" id="activeAlerts">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detailed System Stats -->
+            <div class="grid grid-3 mb-4">
+                <div class="admin-stats-card">
+                    <div class="stats-icon" style="background: rgba(6, 182, 212, 0.1); color: #0891b2;">📥</div>
+                    <div class="stats-info">
+                        <div class="stats-label">Current Inventory Count</div>
+                        <div class="stats-value" id="totalInventory">0</div>
+                    </div>
+                </div>
+                <div class="admin-stats-card">
+                    <div class="stats-icon" style="background: rgba(6, 182, 212, 0.1); color: #0891b2;">🔮</div>
+                    <div class="stats-info">
+                        <div class="stats-label">Total Predicted Demand</div>
+                        <div class="stats-value" id="totalPredictedDemand">0</div>
+                    </div>
+                </div>
+                <div class="admin-stats-card">
+                    <div class="stats-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--secondary-color);">
+                        📈</div>
+                    <div class="stats-info">
+                        <div class="stats-label">Forecast Accuracy</div>
+                        <div class="stats-value" id="avgAccuracy">0%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Charts Section -->
+            <div class="grid grid-2 mb-4">
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">Sales Trend (System-Wide)</h3>
+                    </div>
+                    <div class="admin-content">
+                        <div class="chart-container" style="height: 300px;">
+                            <canvas id="adminSalesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-card">
+                    <div class="admin-card-header">
+                        <h3 class="admin-card-title">Recent System Alerts</h3>
+                        <a href="alerts.html" style="font-size: 0.875rem; color: var(--primary-color);">View All</a>
+                    </div>
+                    <div class="admin-content" id="recentAlerts">
+                        <!-- Content loaded via JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/utils.js"></script>
+    <script src="../js/admin.js"></script>
+    <script>
+        // Dashboard specific charts
+        document.addEventListener('DOMContentLoaded', async () => {
+            // Load Admin Sales Chart
+            try {
+                const salesData = await apiRequest('/admin/sales');
+                const chartContainer = document.querySelector('.chart-container');
+
+                if (!salesData || salesData.length === 0) {
+                    chartContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary);">No sales data available to display trend</div>';
+                    return;
+                }
+
+                const ctx = document.getElementById('adminSalesChart').getContext('2d');
+
+                // Group by date and ensure chronological order
+                const grouped = {};
+                salesData.forEach(s => {
+                    try {
+                        if (!s.date) return;
+                        const dateObj = new Date(s.date);
+                        if (isNaN(dateObj.getTime())) return;
+                        const dateKey = dateObj.toISOString().split('T')[0];
+                        grouped[dateKey] = (grouped[dateKey] || 0) + (parseFloat(s.quantity) || 0);
+                    } catch (e) {
+                        console.warn('Skipping invalid data point:', s);
+                    }
+                });
+
+                const sortedKeys = Object.keys(grouped).sort();
+                if (sortedKeys.length === 0) {
+                    chartContainer.innerHTML = '<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--text-secondary);">No valid sales records found</div>';
+                    return;
+                }
+
+                const labels = sortedKeys.map(k => {
+                    const d = new Date(k);
+                    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                });
+                const values = sortedKeys.map(k => grouped[k]);
+
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Total Units Sold',
+                            data: values,
+                            backgroundColor: '#2563eb',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true, position: 'top' }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: { display: true, text: 'Units' }
+                            },
+                            x: {
+                                title: { display: true, text: 'Date' }
+                            }
+                        }
+                    }
+                });
+            } catch (err) {
+                console.error('Chart load failed:', err);
+                const chartContainer = document.querySelector('.chart-container');
+                if (chartContainer) {
+                    chartContainer.innerHTML = `<div style="display: flex; align-items: center; justify-content: center; height: 100%; color: var(--warning-color);">Failed to load chart: ${err.message}</div>`;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

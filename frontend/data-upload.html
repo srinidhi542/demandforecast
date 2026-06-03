@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data Upload - Demand Forecast System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container navbar-content">
+            <a href="dashboard.html" class="logo">📊 Demand Forecast</a>
+            <ul class="nav-links">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="data-upload.html" class="active">Data</a></li>
+                <li><a href="forecasting.html">Forecasting</a></li>
+                <li><a href="instock.html">Stock</a></li>
+                <li><a href="optimization.html">Optimization</a></li>
+                <li><a href="inventory.html">Alerts</a></li>
+                <li><a href="reports.html">Reports</a></li>
+            </ul>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <button class="theme-toggle" onclick="toggleDarkMode()">🌓</button>
+                <span id="username" style="color: var(--text-secondary);"></span>
+                <button class="btn btn-secondary" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 2rem;">
+        <h1 style="margin-bottom: 2rem;">Data Management</h1>
+
+        <div id="alert-container"></div>
+
+        <div class="grid grid-2" style="margin-bottom: 2rem;">
+            <!-- File Upload -->
+            <div class="card">
+                <div class="card-header">Upload Sales Data</div>
+                <form id="uploadForm">
+                    <div class="file-upload" id="dropZone">
+                        <p>📁 Drag and drop CSV/Excel file here</p>
+                        <p style="color: var(--text-secondary); font-size: 0.875rem;">or click to browse</p>
+                        <input type="file" id="fileInput" accept=".csv,.xlsx,.xls" style="display: none;">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem;">Upload</button>
+                </form>
+            </div>
+
+            <!-- Manual Entry -->
+            <div class="card">
+                <div class="card-header">Manual Data Entry</div>
+                <form id="manualForm">
+                    <div class="form-group">
+                        <label class="form-label">Product ID</label>
+                        <input type="text" id="productId" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Store ID</label>
+                        <input type="text" id="storeId" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Date</label>
+                        <input type="date" id="date" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Quantity</label>
+                        <input type="number" id="quantity" class="form-input" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Revenue (optional)</label>
+                        <input type="number" id="revenue" class="form-input" min="0" step="0.01">
+                    </div>
+                    <button type="submit" class="btn btn-success" style="width: 100%;">Add Record</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Sales Data Table -->
+        <div class="card">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <span>Recent Sales Data</span>
+                <button onclick="deleteAllSalesData()" class="btn btn-danger"
+                    style="padding: 0.25rem 0.5rem; font-size: 0.875rem;">Delete All Data</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product ID</th>
+                            <th>Store ID</th>
+                            <th>Date</th>
+                            <th>Quantity</th>
+                            <th>Revenue</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="salesTable"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/data-upload.js"></script>
+</body>
+
+</html>

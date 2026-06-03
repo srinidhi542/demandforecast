@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Settings - Demand Forecast System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container navbar-content">
+            <a href="dashboard.html" class="logo">📊 Demand Forecast</a>
+            <ul class="nav-links">
+                <li><a href="instock.html">Stock</a></li>
+                <li><a href="optimization.html">Optimization</a></li>
+                <li><a href="inventory.html">Alerts</a></li>
+                <li><a href="reports.html">Reports</a></li>
+                <li><a href="settings.html" class="active">Settings</a></li>
+            </ul>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <button class="theme-toggle" onclick="toggleDarkMode()">🌓</button>
+                <span id="username" style="color: var(--text-secondary);"></span>
+                <button class="btn btn-secondary" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div id="alert-container"
+        style="position:fixed; top:80px; right:1.5rem; z-index:9999; min-width:280px; max-width:420px;"></div>
+
+    <div class="settings-container">
+        <!-- Sidebar Navigation -->
+        <aside class="settings-sidebar">
+            <button class="settings-nav-item active" data-section="profile">
+                <span>👤</span> Profile
+            </button>
+            <button class="settings-nav-item" data-section="dashboard">
+                <span>📊</span> Dashboard
+            </button>
+            <button class="settings-nav-item" data-section="notifications">
+                <span>🔔</span> Notifications
+            </button>
+            <button class="settings-nav-item" data-section="ui">
+                <span>🎨</span> Theme & UI
+            </button>
+            <button class="settings-nav-item" data-section="security">
+                <span>🔒</span> Security
+            </button>
+            <button class="settings-nav-item" data-section="seasonal">
+                <span>📅</span> Seasonal Setup
+            </button>
+        </aside>
+
+        <!-- Dynamic Content Area -->
+        <main class="settings-content">
+
+            <!-- Profile Section -->
+            <div id="profile" class="settings-section active">
+                <div class="section-header">
+                    <h2>Profile Settings</h2>
+                    <p>Manage your account information and how it appears in the system.</p>
+                </div>
+
+                <div class="profile-avatar-section">
+                    <div id="avatarCircle" class="avatar-preview">U</div>
+                    <div>
+                        <!-- Hidden file input -->
+                        <input type="file" id="photoFileInput" accept="image/jpeg,image/png,image/gif"
+                            style="display:none;">
+                        <button type="button" class="btn btn-secondary btn-sm mb-2" id="changePhotoBtn">Change
+                            Photo</button>
+                        <button type="button" class="btn btn-sm mb-2" id="removePhotoBtn"
+                            style="display:none; color:#e74c3c; background:transparent; border:1px solid #e74c3c;">Remove
+                            Photo</button>
+                        <p style="font-size: 0.75rem; color: var(--text-secondary);">JPG, PNG or GIF. Max size 2MB.</p>
+                        <p id="photoError" style="font-size: 0.75rem; color: #e74c3c; display:none;"></p>
+                    </div>
+                </div>
+
+                <form id="profileForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Username</label>
+                            <input type="text" id="prof-username" class="form-input" placeholder="Your name">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" id="prof-email" class="form-input" disabled
+                                title="Email cannot be changed">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Role</label>
+                            <span id="prof-role-badge" class="badge badge-info">User</span>
+                        </div>
+                    </div>
+                    <div class="save-bar">
+                        <button type="submit" class="btn btn-primary">Save Profile Changes</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Dashboard Prefs -->
+            <div id="dashboard" class="settings-section">
+                <div class="section-header">
+                    <h2>Dashboard Preferences</h2>
+                    <p>Customize your personal overview and data visualization defaults.</p>
+                </div>
+
+                <form id="dashboardForm">
+                    <div class="pref-group">
+                        <h4>Default Date Range</h4>
+                        <select id="dash-dateRange" class="form-select" style="width: 200px;">
+                            <option value="7">Last 7 Days</option>
+                            <option value="14">Last 14 Days</option>
+                            <option value="30">Last 30 Days</option>
+                            <option value="90">Last 90 Days</option>
+                        </select>
+                    </div>
+
+                    <div class="pref-group">
+                        <h4>Active Widgets</h4>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="dash-salesTrend"> Sales Trend Chart
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="dash-inventoryStatus"> Inventory Status Summary
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="dash-alertsSummary"> Recent Alerts List
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="dash-forecastComparison"> Forecast vs Actuals
+                        </label>
+                    </div>
+
+                    <div class="save-bar">
+                        <button type="submit" class="btn btn-primary">Save Dashboard Layout</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Notifications Prefs -->
+            <div id="notifications" class="settings-section">
+                <div class="section-header">
+                    <h2>Notification Preferences</h2>
+                    <p>Choose when and how you want to be alerted about stock changes.</p>
+                </div>
+
+                <form id="notificationForm">
+                    <div class="pref-group">
+                        <h4>Alert Delivery</h4>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="notify-inApp"> Show in-app notifications
+                        </label>
+                        <label class="checkbox-item">
+                            <input type="checkbox" id="notify-email"> Send email daily summaries
+                        </label>
+                    </div>
+
+                    <div class="pref-group">
+                        <h4>Minimum Severity</h4>
+                        <div class="d-flex gap-4">
+                            <label class="checkbox-item">
+                                <input type="radio" name="severity" value="all" id="sev-all"> All Alerts
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="radio" name="severity" value="high_medium" id="sev-hm"> High & Medium
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="radio" name="severity" value="high_only" id="sev-h"> High Only
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="save-bar">
+                        <button type="submit" class="btn btn-primary">Save Alert Preferences</button>
+                    </div>
+                </form>
+
+                <!-- System Alert Thresholds (Global Synchronization) -->
+                <div class="pref-group"
+                    style="margin-top: 1.5rem; border: 2px solid var(--accent-color); border-radius: 12px; padding: 1.5rem; background: linear-gradient(135deg, rgba(99,102,241,0.05), rgba(168,85,247,0.05));">
+                    <h4 style="display:flex; align-items:center; gap:0.5rem; margin-bottom:0.75rem;">
+                        ⚙️ Global Alert Thresholds
+                    </h4>
+                    <p style="font-size:0.85rem; color:var(--text-secondary); margin-bottom:1.5rem;">
+                        These thresholds are shared across the system. Changes here or in the Admin Panel will reflect
+                        for all users.
+                    </p>
+
+                    <div class="grid grid-2 gap-4">
+                        <div class="form-group">
+                            <label class="form-label" for="lowStockThreshold">Low Stock (%)</label>
+                            <input type="number" id="lowStockThreshold" class="form-input" min="1" max="100">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="overstockThreshold">Overstock (Days of Stock)</label>
+                            <input type="number" id="overstockThreshold" class="form-input" min="1">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label" for="reorderQuantityThreshold">Reorder Quantity (Units)</label>
+                            <input type="number" id="reorderQuantityThreshold" class="form-input" min="1">
+                        </div>
+                        <div class="form-group"
+                            style="border: 2px solid #f59e0b; border-radius: 10px; padding: 0.75rem; background: rgba(245, 158, 11, 0.05);">
+                            <label class="form-label"
+                                style="color: #d97706; font-weight: 700; display: flex; align-items: center; gap: 0.3rem;">
+                                🏷️ Offer Threshold (Units)
+                            </label>
+                            <input type="number" id="offerThreshold" class="form-input" min="1"
+                                style="border-color: #f59e0b; font-weight: 700;">
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 1.5rem;">
+                        <button type="button" class="btn btn-primary" id="saveSystemThresholdsBtn"
+                            onclick="saveSystemThresholds()">
+                            💾 Sync All Global Thresholds
+                        </button>
+                    </div>
+                    <p id="systemThresholdStatus" style="font-size:0.8rem; margin-top:0.75rem; display:none;"></p>
+                </div>
+            </div>
+
+            <!-- UI Prefs -->
+            <div id="ui" class="settings-section">
+                <div class="section-header">
+                    <h2>Theme & UI Customization</h2>
+                    <p>Change the appearance of the application to suit your workspace.</p>
+                </div>
+
+                <form id="uiForm">
+                    <div class="pref-group">
+                        <h4>App Theme</h4>
+                        <div class="grid grid-3 gap-2">
+                            <label class="checkbox-item" style="flex-direction: column; align-items: flex-start;">
+                                <input type="radio" name="theme" value="light" id="theme-light"> ☀️ Light Mode
+                            </label>
+                            <label class="checkbox-item" style="flex-direction: column; align-items: flex-start;">
+                                <input type="radio" name="theme" value="dark" id="theme-dark"> 🌙 Dark Mode
+                            </label>
+                            <label class="checkbox-item" style="flex-direction: column; align-items: flex-start;">
+                                <input type="radio" name="theme" value="system" id="theme-system"> 💻 System Default
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="pref-group">
+                        <h4>Layout Density</h4>
+                        <div class="d-flex gap-4">
+                            <label class="checkbox-item">
+                                <input type="radio" name="layout" value="comfortable" id="lay-comf"> Comfortable
+                            </label>
+                            <label class="checkbox-item">
+                                <input type="radio" name="layout" value="compact" id="lay-comp"> Compact
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="save-bar">
+                        <button type="submit" class="btn btn-primary">Apply UI Changes</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Security Section -->
+            <div id="security" class="settings-section">
+                <div class="section-header">
+                    <h2>Security & Authentication</h2>
+                    <p>Keep your account secure with a strong password and session monitoring.</p>
+                </div>
+
+                <form id="passwordForm">
+                    <div class="pref-group">
+                        <h4>Update Password</h4>
+                        <div class="form-group mb-3">
+                            <label class="form-label">Current Password</label>
+                            <input type="password" id="curr-pass" class="form-input"
+                                style="width: 100%; max-width: 400px;">
+                        </div>
+                        <div class="form-group mb-3">
+                            <label class="form-label">New Password</label>
+                            <input type="password" id="new-pass" class="form-input"
+                                style="width: 100%; max-width: 400px;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Confirm New Password</label>
+                            <input type="password" id="conf-pass" class="form-input"
+                                style="width: 100%; max-width: 400px;">
+                        </div>
+                        <button type="submit" class="btn btn-secondary mt-3">Update Password</button>
+                    </div>
+                </form>
+
+                <div class="pref-group">
+                    <h4>Session History</h4>
+                    <p style="font-size: 0.875rem;">Last Login: <strong id="lastLoginDisplay">Loading...</strong></p>
+                    <button class="btn btn-danger btn-outline mt-3" onclick="logout()">Logout from All Devices</button>
+                </div>
+            </div>
+
+            <!-- Seasonal Section -->
+            <div id="seasonal" class="settings-section">
+                <div class="section-header">
+                    <h2>Seasonal Demand Setup</h2>
+                    <p>Configure active months and multipliers for different seasons to adjust forecasts.</p>
+                </div>
+
+                <div id="seasonsList" class="grid grid-2 gap-4">
+                    <!-- Loaded dynamically via settings.js -->
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/settings.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports - Demand Forecast System</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="container navbar-content">
+            <a href="dashboard.html" class="logo">📊 Demand Forecast</a>
+            <ul class="nav-links">
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="data-upload.html">Data</a></li>
+                <li><a href="forecasting.html">Forecasting</a></li>
+                <li><a href="instock.html">Stock</a></li>
+                <li><a href="optimization.html">Optimization</a></li>
+                <li><a href="inventory.html">Alerts</a></li>
+                <li><a href="reports.html" class="active">Reports</a></li>
+            </ul>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+                <button class="theme-toggle" onclick="toggleDarkMode()">🌓</button>
+                <span id="username" style="color: var(--text-secondary);"></span>
+                <button class="btn btn-secondary" onclick="logout()">Logout</button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container" style="margin-top: 2rem;">
+        <h1 style="margin-bottom: 2rem;">Reports & Export</h1>
+
+        <div class="grid grid-2">
+            <!-- Forecast Reports -->
+            <div class="card">
+                <div class="card-header">Forecast Reports</div>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Export demand forecast data</p>
+
+                <div class="form-group">
+                    <label class="form-label">Product ID (optional)</label>
+                    <input type="text" id="forecastProductId" class="form-input" placeholder="Leave empty for all">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Store ID (optional)</label>
+                    <input type="text" id="forecastStoreId" class="form-input" placeholder="Leave empty for all">
+                </div>
+
+                <div style="display: flex; gap: 1rem;">
+                    <button class="btn btn-primary" onclick="downloadForecastCSV()">📄 Download CSV</button>
+                    <button class="btn btn-secondary" onclick="downloadForecastPDF()">📑 Download PDF</button>
+                </div>
+            </div>
+
+            <!-- Inventory Reports -->
+            <div class="card">
+                <div class="card-header">Inventory Reports</div>
+                <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Export inventory data</p>
+
+                <button class="btn btn-primary" onclick="downloadInventoryCSV()" style="width: 100%;">📄 Download
+                    Inventory CSV</button>
+            </div>
+        </div>
+
+        <!-- Summary Statistics -->
+        <div class="card" style="margin-top: 2rem;">
+            <div class="card-header">Summary Statistics</div>
+            <div class="grid grid-4" id="summaryStats">
+                <div class="spinner"></div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script>
+        if (!checkAuth()) throw new Error('Not authenticated');
+
+        const user = getUser();
+        if (user) document.getElementById('username').textContent = user.username;
+
+        // Download forecast CSV
+        function downloadForecastCSV() {
+            const productId = document.getElementById('forecastProductId').value;
+            const storeId = document.getElementById('forecastStoreId').value;
+
+            let url = `${API_URL}/reports/forecast/csv?`;
+            if (productId) url += `productId=${productId}&`;
+            if (storeId) url += `storeId=${storeId}&`;
+
+            window.open(url + `token=${getToken()}`, '_blank');
+        }
+
+        // Download forecast PDF
+        function downloadForecastPDF() {
+            const productId = document.getElementById('forecastProductId').value;
+            const storeId = document.getElementById('storeStoreId').value;
+
+            let url = `${API_URL}/reports/forecast/pdf?`;
+            if (productId) url += `productId=${productId}&`;
+            if (storeId) url += `storeId=${storeId}&`;
+
+            window.open(url + `token=${getToken()}`, '_blank');
+        }
+
+        // Download inventory CSV
+        function downloadInventoryCSV() {
+            window.open(`${API_URL}/reports/inventory/csv?token=${getToken()}`, '_blank');
+        }
+
+        // Load summary statistics
+        async function loadSummary() {
+            try {
+                const summary = await apiRequest('/reports/summary');
+
+                document.getElementById('summaryStats').innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--primary-color);">${formatNumber(summary.totalProducts)}</div>
+                        <div style="color: var(--text-secondary); margin-top: 0.5rem;">Total Products</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--secondary-color);">${formatNumber(summary.totalSales)}</div>
+                        <div style="color: var(--text-secondary); margin-top: 0.5rem;">Total Sales</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--accent-color);">${formatNumber(summary.predictedDemand)}</div>
+                        <div style="color: var(--text-secondary); margin-top: 0.5rem;">Predicted Demand</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2rem; font-weight: 700; color: var(--warning-color);">${summary.unreadAlerts}</div>
+                        <div style="color: var(--text-secondary); margin-top: 0.5rem;">Unread Alerts</div>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Summary load error:', error);
+            }
+        }
+
+        loadSummary();
+    </script>
+</body>
+
+</html>
